@@ -37,4 +37,3 @@ endpoints:
       addParams:
         max_tokens: 1200
         temperature: 0.70
-        chatgptLabel: "KAIROS"
