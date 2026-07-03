@@ -28,10 +28,10 @@ endpoints:
       apiKey: "${GROQ_API_KEY}"
       baseURL: "https://api.groq.com/openai/v1"
       models:
-        default: ["llama3-70b-8192"]
+        default: ["llama-3.1-70b-versatile"]
         fetch: false
       titleConvo: true
-      titleModel: "llama3-70b-8192"
+      titleModel: "llama-3.1-70b-versatile"
       modelDisplayLabel: "KAIROX"
       iconURL: "https://img.icons8.com/fluency/96/brain.png"
       addParams:
