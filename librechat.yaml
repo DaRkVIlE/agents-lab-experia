@@ -9,10 +9,10 @@ cache: true
 interface:
   endpointSettings: false
   parameters: false
-  modelSelect: false
+  modelSelect: true
   agents:
-    use: true
-    create: true
+    use: false
+    create: false
     share: false
     public: false
 
@@ -37,3 +37,4 @@ endpoints:
       addParams:
         max_tokens: 1200
         temperature: 0.70
+        chatgptLabel: "KAIROS"
