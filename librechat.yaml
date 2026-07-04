@@ -11,10 +11,15 @@ interface:
   parameters: false
   modelSelect: true
   agents:
-    use: false
+    use: true
     create: false
     share: false
     public: false
+
+mcpServers:
+  experia-calibration:
+    type: "sse"
+    url: "http://localhost:3001/sse"
 
 # registration:
 #   socialLogins: []
@@ -37,3 +42,36 @@ endpoints:
       addParams:
         max_tokens: 1200
         temperature: 0.70
+        chatgptLabel: "KAIROS"
+
+modelSpecs:
+  enforce: false
+  list:
+    - name: "onboarding-gestor"
+      label: "Treinar Novo Bot"
+      description: "Fluxo de onboarding para calibrar seu novo bot de atendimento."
+      iconURL: "https://img.icons8.com/color/96/bot.png"
+      default: true
+      preset:
+        endpoint: "custom"
+        model: "llama3-70b-8192"
+        chatGptLabel: "Ajudante de Configuração"
+        promptPrefix: "Você é o assistente de onboarding da Experia. Sua missão é entrevistar o gestor em 5 passos rápidos para extrair: 1. Nome do negócio, 2. Tom de voz, 3. Serviços, 4. Regras de negócio, 5. Exemplos de respostas. Ao final do passo 5, você OBRIGATORIAMENTE DEVE retornar um bloco JSON com todos esses dados consolidados."
+    - name: "teste-paulo-servicos"
+      label: "Simulador: Paulo Serviços"
+      description: "Simulador para testar como o bot do Paulo Serviços atende."
+      iconURL: "https://img.icons8.com/color/96/plumber.png"
+      preset:
+        endpoint: "custom"
+        model: "llama3-70b-8192"
+        chatGptLabel: "Bot do Paulo"
+        promptPrefix: "Você é o assistente virtual do Paulo Serviços. Você deve testar a configuração atualizada."
+    - name: "teste-aida-tutor"
+      label: "Simulador: AIDA Tutor"
+      description: "Simulador para testar a AIDA Tutor de Idiomas."
+      iconURL: "https://img.icons8.com/color/96/reading.png"
+      preset:
+        endpoint: "custom"
+        model: "llama3-70b-8192"
+        chatGptLabel: "AIDA"
+        promptPrefix: "Você é AIDA, a tutora imersiva. Teste a conversação."

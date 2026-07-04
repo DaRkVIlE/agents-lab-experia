@@ -34,10 +34,12 @@ const keys = require('./keys');
 const user = require('./user');
 const mcp = require('./mcp');
 const rum = require('./rum');
+const managerOnboarding = require('./managerOnboarding');
 
 module.exports = {
   rum,
   mcp,
+  managerOnboarding,
   auth,
   adminAuth,
   adminConfig,
