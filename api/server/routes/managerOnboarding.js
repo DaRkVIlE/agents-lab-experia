@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const requireJwtAuth = require('../middleware/requireJwtAuth');
 const ManagerProfile = require('../../models/ManagerProfile');
+const ManagerClientAccess = require('../../models/ManagerClientAccess');
 const { parseOnboardingResult } = require('../services/managerOnboarding/parseOnboardingResult');
 const { syncToCommercialBots } = require('../services/managerOnboarding/syncToCommercialBots');
 
@@ -14,6 +15,12 @@ router.post('/complete', async (req, res) => {
 
         if (!clientId || !assistantMessage) {
             return res.status(400).json({ error: 'Faltam dados obrigatórios (clientId, assistantMessage)' });
+        }
+
+        // STORY-GOV-3: RBAC
+        const access = await ManagerClientAccess.findOne({ managerId: userId, clientId });
+        if (!access || access.role !== 'owner') {
+            return res.status(403).json({ error: 'Forbidden: You are not the owner of this client.' });
         }
 
         // 1. Extrair os dados
@@ -39,7 +46,8 @@ router.post('/complete', async (req, res) => {
 
         try {
             // 3. Tentar sincronizar com o Postgres (commercial-ai-bots)
-            await syncToCommercialBots(clientId, businessName, parsedData);
+            await syncToCommercialBots(clientId, businessName, parsedData, userId);
+
             profile.syncStatus.lastSyncOk = true;
             profile.syncStatus.lastSyncAt = new Date();
             await profile.save();
@@ -71,13 +79,20 @@ router.post('/complete', async (req, res) => {
 router.post('/retry-sync/:clientId', async (req, res) => {
     try {
         const { clientId } = req.params;
+        const userId = req.user.id;
+
+        const access = await ManagerClientAccess.findOne({ managerId: userId, clientId });
+        if (!access || access.role !== 'owner') {
+            return res.status(403).json({ error: 'Forbidden: You are not the owner of this client.' });
+        }
+
         const profile = await ManagerProfile.findOne({ clientId });
         
         if (!profile) {
             return res.status(404).json({ error: 'Perfil não encontrado' });
         }
 
-        await syncToCommercialBots(clientId, profile.businessName, profile.onboarding);
+        await syncToCommercialBots(clientId, profile.businessName, profile.onboarding, profile.userId);
         profile.syncStatus.lastSyncOk = true;
         profile.syncStatus.lastSyncAt = new Date();
         await profile.save();

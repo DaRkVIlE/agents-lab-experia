@@ -1,7 +1,9 @@
+const crypto = require('crypto');
+
 /**
  * Faz a chamada HTTP para o motor comercial (commercial-ai-bots) usando fetch.
  */
-async function syncToCommercialBots(clientId, businessName, onboardingData) {
+async function syncToCommercialBots(clientId, businessName, onboardingData, managerId) {
     const baseUrl = process.env.COMMERCIAL_BOTS_INTERNAL_URL;
     const secret = process.env.INTERNAL_API_SECRET;
 
@@ -12,6 +14,7 @@ async function syncToCommercialBots(clientId, businessName, onboardingData) {
     const payload = {
         clientId,
         businessName,
+        managerId,
         tone: onboardingData.tone,
         services: onboardingData.services,
         targetAudience: onboardingData.targetAudience,
@@ -20,13 +23,20 @@ async function syncToCommercialBots(clientId, businessName, onboardingData) {
         rawConfig: onboardingData.rawAssistantJson
     };
 
+    const timestamp = Date.now().toString();
+    const hmac = crypto.createHmac('sha256', secret);
+    hmac.update(`${managerId}:${clientId}:${timestamp}`);
+    const signature = hmac.digest('hex');
+
     const url = `${baseUrl.replace(/\/$/, '')}/internal/manager/calibrate`;
 
     const response = await fetch(url, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'x-internal-secret': secret
+            'x-internal-secret': secret,
+            'x-timestamp': timestamp,
+            'x-signature': signature
         },
         body: JSON.stringify(payload)
     });
